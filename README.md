@@ -1,111 +1,129 @@
-# 💳 Credit Card Approval Prediction
+# CreditIQ — Credit Risk & Eligibility Decisioning System
 
-A Machine Learning project that predicts whether a credit card application will be **Approved** or **Rejected** based on applicant information such as income, employment status, and credit history. The project uses classification algorithms to improve the accuracy and efficiency of the approval process.
-
----
-
-## 🚀 Features
-
-- Predicts credit card approval status
-- Data preprocessing and cleaning
-- Machine Learning classification model
-- Model performance evaluation
-- Accurate and fast predictions
+An AI-powered credit card application screening platform supporting three operational workflows.
 
 ---
 
-## 🛠️ Technologies Used
+## Quick Start
 
-- Python
-- Pandas
-- NumPy
-- Scikit-learn
-- Matplotlib
-- Seaborn
-- Jupyter Notebook
+### 1. Backend (FastAPI + XGBoost)
 
----
+```powershell
+cd backend
 
-## 📂 Project Structure
+# Install dependencies (first time only)
+py -m pip install -r requirements.txt
 
-```text
-Credit-Card-Approval-Prediction/
-│── dataset/
-│── notebook.ipynb
-│── model.pkl
-│── requirements.txt
-│── README.md
+# Generate dataset + train model (first time only)
+py ml/generate_dataset.py
+py ml/train_model.py
+
+# Start the API server
+py -m uvicorn app.main:app --reload --port 8000
+```
+
+API docs available at: http://localhost:8000/docs
+
+### 2. Frontend (Vanilla HTML/JS)
+
+Simply open `frontend/index.html` in your browser, OR serve it with Python:
+
+```powershell
+cd frontend
+py -m http.server 3000
+# Then open http://localhost:3000
 ```
 
 ---
 
-## ⚙️ Installation
+## API Endpoints
 
-1. Clone the repository
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET`  | `/api/v1/health` | Model status & metrics |
+| `POST` | `/api/v1/predict-single` | Analyst single-applicant screening |
+| `POST` | `/api/v1/batch-screening` | Compliance CSV batch upload |
+| `POST` | `/api/v1/eligibility-check` | Customer self-service pre-qualification |
+
+### Example: Single Prediction
 
 ```bash
-git clone https://github.com/your-username/Credit-Card-Approval-Prediction.git
-```
-
-2. Navigate to the project folder
-
-```bash
-cd Credit-Card-Approval-Prediction
-```
-
-3. Install the required libraries
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Run the Jupyter Notebook
-
-```bash
-jupyter notebook
+curl -X POST http://localhost:8000/api/v1/predict-single \
+  -H "Content-Type: application/json" \
+  -d '{
+    "credit_score": 720,
+    "annual_income": 75000,
+    "debt_to_income_ratio": 0.28,
+    "employment_months": 48,
+    "credit_history_months": 84,
+    "income_type": "Salaried",
+    "payment_status": 0,
+    "num_open_accounts": 4
+  }'
 ```
 
 ---
 
-## 📊 Workflow
+## Compliance Logic
 
-- Data Collection
-- Data Cleaning
-- Data Preprocessing
-- Model Training
-- Model Evaluation
-- Prediction
+Payment status codes map to binary compliance labels:
 
----
-
-## 🎯 Applications
-
-- Banking
-- Credit Risk Analysis
-- Financial Services
-- Automated Loan & Credit Approval
+| Code | Description | Compliance |
+|------|-------------|------------|
+| 0 | On-Time | ✅ Compliant |
+| 1 | 30-59 Days Late | ✅ Compliant (minor) |
+| 2 | 60-89 Days Late | ❌ **High-Risk** |
+| 3 | 90+ Days Late | ❌ **High-Risk** |
+| 4 | Prior Default | ❌ **High-Risk** (auto-disqualify) |
 
 ---
 
-## 📈 Future Improvements
+## Model Performance
 
-- Deploy as a web application
-- Improve model accuracy
-- Add real-time prediction interface
+| Metric | Value |
+|--------|-------|
+| Algorithm | XGBoost Classifier |
+| Training Samples | 4,000 |
+| Test Accuracy | **85.4%** |
+| AUC-ROC | **0.9317** |
+| F1 (Approved) | 0.90 |
+| F1 (Rejected) | 0.72 |
+
+Top feature: `compliance_flag` (70.2% importance) — the binary compliance transformer.
 
 ---
 
-## 👩‍💻 Author
+## Running Tests
 
-**Gayathri Bujji**
+```powershell
+cd backend
+py -m pytest tests/ -v
+```
 
-B.Tech Final Year – Computer Science Engineering
+- `test_feature_engineering.py` — 18 unit tests for ComplianceTransformer
+- `test_api.py` — 16 integration tests across all endpoints
 
 ---
 
-## 📜 License
+## Project Structure
 
-This project is developed for educational and learning purposes.
-
-⭐ If you found this project useful, don't forget to **Star** this repository!
+```
+Credit Card Approval Prediction/
+├── backend/
+│   ├── app/            # FastAPI application
+│   │   ├── main.py
+│   │   ├── routers/    # predict, batch, health, eligibility
+│   │   ├── schemas/    # Pydantic request/response models
+│   │   └── services/   # predictor, compliance logic
+│   ├── ml/             # ML pipeline
+│   │   ├── generate_dataset.py
+│   │   ├── train_model.py
+│   │   └── compliance_transformer.py
+│   ├── models/         # Trained model artifacts (.joblib, .json)
+│   ├── data/           # Synthetic dataset (credit_data.csv)
+│   └── tests/          # pytest test suites
+└── frontend/
+    ├── index.html      # Single-page application
+    ├── style.css       # Dark theme design system
+    └── app.js          # Frontend logic
 ```
