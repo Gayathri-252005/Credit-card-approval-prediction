@@ -1,0 +1,46 @@
+{
+  "model_type": "XGBoost",
+  "accuracy": 0.854,
+  "auc_roc": 0.9317,
+  "numeric_features": [
+    "credit_score",
+    "annual_income",
+    "debt_to_income_ratio",
+    "employment_months",
+    "credit_history_months",
+    "num_open_accounts",
+    "monthly_expenses",
+    "compliance_flag"
+  ],
+  "categorical_features": [
+    "income_type"
+  ],
+  "all_feature_names": [
+    "credit_score",
+    "annual_income",
+    "debt_to_income_ratio",
+    "employment_months",
+    "credit_history_months",
+    "num_open_accounts",
+    "monthly_expenses",
+    "compliance_flag",
+    "income_type_Salaried",
+    "income_type_Self-Employed",
+    "income_type_Unemployed"
+  ],
+  "feature_importances": {
+    "compliance_flag": 0.7021760940551758,
+    "credit_score": 0.06517253071069717,
+    "annual_income": 0.04049168527126312,
+    "debt_to_income_ratio": 0.03416578844189644,
+    "credit_history_months": 0.02894643507897854,
+    "employment_months": 0.02653900906443596,
+    "monthly_expenses": 0.02583371289074421,
+    "income_type_Unemployed": 0.021892530843615532,
+    "num_open_accounts": 0.0202596765011549,
+    "income_type_Salaried": 0.01824292540550232,
+    "income_type_Self-Employed": 0.01627969555556774
+  },
+  "n_training_samples": 4000,
+  "n_test_samples": 1000
+}

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Credit Risk & Eligibility Decisioning System — AI-powered credit card application screening platform for analysts, compliance officers, and customers." />
+  <title>CreditIQ — Credit Risk & Eligibility Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="header" id="main-header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+            <path d="M8 20L14 14L18 18L24 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="24" cy="12" r="2" fill="white"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366F1"/>
+                <stop offset="1" stop-color="#8B5CF6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">CreditIQ</span>
+        <span class="logo-badge">AI Platform</span>
+      </div>
+      <div class="header-status">
+        <div class="status-dot" id="api-status-dot"></div>
+        <span class="status-text" id="api-status-text">Checking API...</span>
+        <div class="header-info">
+          <span id="header-model-type">—</span>
+          <span class="separator">|</span>
+          <span id="header-accuracy">—</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Tab Navigation ─────────────────────────────────────────────────── -->
+  <nav class="tab-nav" id="tab-nav">
+    <div class="tab-nav-inner">
+      <button class="tab-btn active" id="tab-analyst" data-tab="analyst" onclick="switchTab('analyst')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <span>Analyst Portal</span>
+        <span class="tab-sub">Single Screening</span>
+      </button>
+      <button class="tab-btn" id="tab-compliance" data-tab="compliance" onclick="switchTab('compliance')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+        </svg>
+        <span>Compliance Batch</span>
+        <span class="tab-sub">CSV Review</span>
+      </button>
+      <button class="tab-btn" id="tab-customer" data-tab="customer" onclick="switchTab('customer')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Self-Service</span>
+        <span class="tab-sub">Eligibility Check</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Main Content ────────────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         TAB 1 — ANALYST PORTAL
+         ════════════════════════════════════════════════════════════════════ -->
+    <section class="tab-panel active" id="panel-analyst">
+      <div class="panel-header">
+        <div>
+          <h1 class="panel-title">Analyst Screening Portal</h1>
+          <p class="panel-sub">Instant AI-powered credit application decisioning with explainability</p>
+        </div>
+      </div>
+
+      <div class="analyst-grid">
+        <!-- Input Form -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 class="card-title">Applicant Profile</h2>
+            <span class="card-badge">Deep-Dive</span>
+          </div>
+          <form id="analyst-form" onsubmit="submitAnalystForm(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="a-credit-score">Credit Score (FICO)</label>
+                <div class="input-wrapper">
+                  <input type="number" id="a-credit-score" class="form-input" min="300" max="850" value="720" required />
+                  <span class="input-unit">/ 850</span>
+                </div>
+                <div class="score-bar-wrap">
+                  <div class="score-bar" id="score-bar-fill" style="width:60%"></div>
+                  <span class="score-label" id="score-label">Good</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="a-annual-income">Annual Income</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="number" id="a-annual-income" class="form-input prefix" min="1" value="75000" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="a-dti">Debt-to-Income Ratio</label>
+                <div class="input-wrapper">
+                  <input type="number" id="a-dti" class="form-input" min="0.01" max="0.99" step="0.01" value="0.28" required />
+                  <span class="input-unit">ratio</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="a-employment">Employment Duration</label>
+                <div class="input-wrapper">
+                  <input type="number" id="a-employment" class="form-input" min="0" value="48" required />
+                  <span class="input-unit">months</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="a-history">Credit History Length</label>
+                <div class="input-wrapper">
+                  <input type="number" id="a-history" class="form-input" min="0" value="84" required />
+                  <span class="input-unit">months</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="a-income-type">Income Type</label>
+                <select id="a-income-type" class="form-select" required>
+                  <option value="Salaried" selected>Salaried</option>
+                  <option value="Self-Employed">Self-Employed</option>
+                  <option value="Unemployed">Unemployed</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="a-payment-status">Payment History Status</label>
+                <select id="a-payment-status" class="form-select" required>
+                  <option value="0" selected>0 — On-Time (Compliant)</option>
+                  <option value="1">1 — 30-59 Days Late (Minor)</option>
+                  <option value="2">2 — 60-89 Days Late (High-Risk)</option>
+                  <option value="3">3 — 90+ Days Late (Critical)</option>
+                  <option value="4">4 — Prior Default (Auto-Reject)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="a-accounts">Open Accounts</label>
+                <div class="input-wrapper">
+                  <input type="number" id="a-accounts" class="form-input" min="0" max="30" value="4" required />
+                  <span class="input-unit">accounts</span>
+                </div>
+              </div>
+
+              <div class="form-group full-width">
+                <label class="form-label" for="a-expenses">Monthly Expenses</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="number" id="a-expenses" class="form-input prefix" min="0" value="1750" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full" id="analyst-submit-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+              Run AI Screening
+            </button>
+          </form>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="results-col">
+          <!-- Decision Card -->
+          <div class="card decision-card" id="analyst-decision-card" style="display:none">
+            <div class="decision-header">
+              <div class="decision-badge-wrap">
+                <div class="decision-icon" id="decision-icon"></div>
+                <div>
+                  <div class="decision-label" id="decision-label">—</div>
+                  <div class="decision-sub" id="decision-sub">—</div>
+                </div>
+              </div>
+              <div class="probability-ring-wrap">
+                <svg class="probability-ring" viewBox="0 0 80 80" id="prob-ring-svg">
+                  <circle cx="40" cy="40" r="34" class="ring-bg"/>
+                  <circle cx="40" cy="40" r="34" class="ring-fill" id="ring-fill" style="stroke-dasharray: 213.6; stroke-dashoffset: 213.6;"/>
+                </svg>
+                <div class="ring-text">
+                  <div class="ring-pct" id="ring-pct">0%</div>
+                  <div class="ring-lbl">Approval</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compliance Banner -->
+            <div class="compliance-banner" id="compliance-banner" style="display:none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <span id="compliance-text">Compliance Status</span>
+            </div>
+
+            <!-- Risk Meter -->
+            <div class="risk-section">
+              <div class="risk-header">
+                <span class="section-label">Risk Score</span>
+                <span class="risk-value" id="risk-value">—</span>
+                <span class="risk-tier-badge" id="risk-tier-badge">—</span>
+              </div>
+              <div class="risk-meter">
+                <div class="risk-meter-fill" id="risk-meter-fill"></div>
+              </div>
+              <div class="risk-meter-labels">
+                <span>Low Risk</span><span>High Risk</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Importance Card -->
+          <div class="card" id="importance-card" style="display:none">
+            <div class="card-header">
+              <h2 class="card-title">Feature Importance</h2>
+              <span class="card-badge">Explainability</span>
+            </div>
+            <div id="importance-chart"></div>
+          </div>
+
+          <!-- Tips Card -->
+          <div class="card" id="tips-card" style="display:none">
+            <div class="card-header">
+              <h2 class="card-title">Improvement Tips</h2>
+            </div>
+            <ul class="tips-list" id="tips-list"></ul>
+          </div>
+
+          <!-- Placeholder -->
+          <div class="empty-state" id="analyst-empty">
+            <div class="empty-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="64" height="64" rx="16" fill="url(#emptyGrad)"/>
+                <path d="M20 44L28 36L34 42L44 32" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="44" cy="32" r="3" fill="white"/>
+                <defs><linearGradient id="emptyGrad" x1="0" y1="0" x2="64" y2="64"><stop stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+              </svg>
+            </div>
+            <h3>Ready for Screening</h3>
+            <p>Fill in the applicant profile and click "Run AI Screening" to get an instant decision with explainability breakdown.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         TAB 2 — COMPLIANCE BATCH
+         ════════════════════════════════════════════════════════════════════ -->
+    <section class="tab-panel" id="panel-compliance">
+      <div class="panel-header">
+        <div>
+          <h1 class="panel-title">Compliance Batch Review</h1>
+          <p class="panel-sub">Upload a CSV file to flag high-risk applicants with past-due loan histories</p>
+        </div>
+        <button class="btn btn-secondary" id="export-btn" onclick="exportResults()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export CSV
+        </button>
+      </div>
+
+      <!-- Drop Zone -->
+      <div class="dropzone" id="dropzone"
+           ondragover="handleDragOver(event)"
+           ondragleave="handleDragLeave(event)"
+           ondrop="handleDrop(event)"
+           onclick="document.getElementById('csv-file-input').click()">
+        <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(event)" />
+        <div class="dropzone-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="dropzone-text">
+          <span class="dropzone-primary">Drop your CSV here</span>
+          <span class="dropzone-secondary">or click to browse — must include <code>payment_status</code> column</span>
+        </div>
+        <button class="btn btn-outline" onclick="event.stopPropagation(); downloadSampleCSV()">
+          Download Sample CSV
+        </button>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="batch-stats" style="display:none">
+        <div class="stat-item">
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-item approved">
+          <div class="stat-value" id="stat-approved">—</div>
+          <div class="stat-label">Approved</div>
+        </div>
+        <div class="stat-item rejected">
+          <div class="stat-value" id="stat-rejected">—</div>
+          <div class="stat-label">Rejected</div>
+        </div>
+        <div class="stat-item compliance-rej">
+          <div class="stat-value" id="stat-compliance">—</div>
+          <div class="stat-label">Compliance Rejected</div>
+        </div>
+        <div class="stat-item high-risk">
+          <div class="stat-value" id="stat-highrisk">—</div>
+          <div class="stat-label">High-Risk</div>
+        </div>
+        <div class="stat-item rate">
+          <div class="stat-value" id="stat-rate">—</div>
+          <div class="stat-label">Approval Rate</div>
+        </div>
+      </div>
+
+      <!-- Results Table -->
+      <div class="card table-card" id="batch-table-card" style="display:none">
+        <div class="table-scroll">
+          <table class="data-table" id="batch-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Applicant ID</th>
+                <th>Credit Score</th>
+                <th>Annual Income</th>
+                <th>Payment Status</th>
+                <th>Compliance</th>
+                <th>Decision</th>
+                <th>Probability</th>
+                <th>Risk Score</th>
+                <th>Risk Tier</th>
+              </tr>
+            </thead>
+            <tbody id="batch-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         TAB 3 — CUSTOMER SELF-SERVICE
+         ════════════════════════════════════════════════════════════════════ -->
+    <section class="tab-panel" id="panel-customer">
+      <div class="panel-header">
+        <div>
+          <h1 class="panel-title">Credit Card Eligibility Check</h1>
+          <p class="panel-sub">Check your pre-qualification instantly — no impact on your credit score</p>
+        </div>
+        <div class="soft-pull-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Soft Pull Only
+        </div>
+      </div>
+
+      <!-- Wizard -->
+      <div class="wizard-container">
+        <!-- Step Indicator -->
+        <div class="wizard-steps" id="wizard-steps">
+          <div class="wizard-step active" data-step="1">
+            <div class="step-circle">1</div>
+            <span class="step-label">Income</span>
+          </div>
+          <div class="wizard-connector"></div>
+          <div class="wizard-step" data-step="2">
+            <div class="step-circle">2</div>
+            <span class="step-label">Employment</span>
+          </div>
+          <div class="wizard-connector"></div>
+          <div class="wizard-step" data-step="3">
+            <div class="step-circle">3</div>
+            <span class="step-label">Credit History</span>
+          </div>
+          <div class="wizard-connector"></div>
+          <div class="wizard-step" data-step="4">
+            <div class="step-circle">4</div>
+            <span class="step-label">Expenses</span>
+          </div>
+        </div>
+
+        <!-- Step Panels -->
+        <div class="wizard-body">
+          <!-- Step 1: Income -->
+          <div class="wizard-panel active" id="wizard-step-1">
+            <div class="wizard-panel-content">
+              <div class="step-icon-wrap blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <h3 class="step-title">What is your annual income?</h3>
+              <p class="step-desc">Include all sources of income before taxes</p>
+              <div class="step-form">
+                <div class="input-wrapper big">
+                  <span class="input-prefix big">$</span>
+                  <input type="number" id="w-income" class="form-input big prefix" placeholder="e.g. 60000" min="1" value="" />
+                </div>
+                <div class="form-group" style="margin-top:1.5rem">
+                  <label class="form-label">Income Type</label>
+                  <div class="radio-group">
+                    <label class="radio-option">
+                      <input type="radio" name="w-income-type" value="Salaried" checked />
+                      <span class="radio-card">
+                        <span class="radio-icon">💼</span>
+                        <span>Salaried</span>
+                      </span>
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="w-income-type" value="Self-Employed" />
+                      <span class="radio-card">
+                        <span class="radio-icon">🏢</span>
+                        <span>Self-Employed</span>
+                      </span>
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="w-income-type" value="Unemployed" />
+                      <span class="radio-card">
+                        <span class="radio-icon">🔍</span>
+                        <span>Unemployed</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Employment -->
+          <div class="wizard-panel" id="wizard-step-2">
+            <div class="wizard-panel-content">
+              <div class="step-icon-wrap purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                  <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                </svg>
+              </div>
+              <h3 class="step-title">How long have you been employed?</h3>
+              <p class="step-desc">Total months at your current or recent employer</p>
+              <div class="step-form">
+                <div class="employment-slider-wrap">
+                  <input type="range" id="w-employment-slider" min="0" max="240" value="36"
+                         oninput="updateSlider('w-employment', this.value, 'month')" class="slider" />
+                  <div class="slider-labels">
+                    <span>0 months</span><span>20 years</span>
+                  </div>
+                </div>
+                <div class="slider-display" id="w-employment-display">
+                  <span class="slider-val">36</span>
+                  <span class="slider-unit">months</span>
+                </div>
+                <input type="hidden" id="w-employment" value="36" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Credit History -->
+          <div class="wizard-panel" id="wizard-step-3">
+            <div class="wizard-panel-content">
+              <div class="step-icon-wrap green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                  <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <h3 class="step-title">How long is your credit history?</h3>
+              <p class="step-desc">Since you first opened a credit account</p>
+              <div class="step-form">
+                <div class="employment-slider-wrap">
+                  <input type="range" id="w-history-slider" min="0" max="360" value="60"
+                         oninput="updateSlider('w-history', this.value, 'month')" class="slider" />
+                  <div class="slider-labels">
+                    <span>0 months</span><span>30 years</span>
+                  </div>
+                </div>
+                <div class="slider-display" id="w-history-display">
+                  <span class="slider-val">60</span>
+                  <span class="slider-unit">months</span>
+                </div>
+                <input type="hidden" id="w-history" value="60" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Expenses -->
+          <div class="wizard-panel" id="wizard-step-4">
+            <div class="wizard-panel-content">
+              <div class="step-icon-wrap orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                  <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+                </svg>
+              </div>
+              <h3 class="step-title">What are your monthly expenses?</h3>
+              <p class="step-desc">Include rent/mortgage, loans, utilities, and regular bills</p>
+              <div class="step-form">
+                <div class="input-wrapper big">
+                  <span class="input-prefix big">$</span>
+                  <input type="number" id="w-expenses" class="form-input big prefix" placeholder="e.g. 1500" min="0" value="" />
+                </div>
+                <p class="step-hint">💡 This helps us calculate your debt-to-income ratio</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Result Panel -->
+          <div class="wizard-panel" id="wizard-result">
+            <div class="eligibility-result" id="eligibility-result">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Wizard Navigation -->
+        <div class="wizard-nav" id="wizard-nav">
+          <button class="btn btn-ghost" id="wizard-back-btn" onclick="wizardBack()" style="display:none">
+            ← Back
+          </button>
+          <button class="btn btn-primary" id="wizard-next-btn" onclick="wizardNext()">
+            Continue →
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loading-overlay" style="display:none">
+    <div class="loading-spinner"></div>
+    <p class="loading-text" id="loading-text">Processing...</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
